@@ -1,0 +1,46 @@
+name: Build & Publish – GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Check out your code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # 2) Set up Node 20.x
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      # 3) Install pnpm globally
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # 4) Install dependencies
+      - name: Install dependencies
+        run: pnpm install
+        env:
+          CI: true
+
+      # 5) Build the static site
+      - name: Build Astro site
+        run: pnpm build
+
+      # 6) Deploy to gh-pages branch
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
